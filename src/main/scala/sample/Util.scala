@@ -12,7 +12,5 @@ object Util {
 
   def generateId(): String = currentId.incrementAndGet().toString
 
-  def now(): Date = new Date()
-
-  def instant(): Instant = Instant.now()
+  def now(): Instant = Instant.now()
 }

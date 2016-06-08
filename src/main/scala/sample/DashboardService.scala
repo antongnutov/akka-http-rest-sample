@@ -15,7 +15,7 @@ class DashboardService(implicit val executionContext: ExecutionContext) {
 
   def create(update: DashboardUpdate): Future[Dashboard] = Future {
     val id = Util.generateId()
-    val time = Util.instant()
+    val time = Util.now()
     val uri = ""
     val owner = Owner("1234567", "")
     val widgets = update.widgets.map(_.copy(id = Some(Util.generateId())))
@@ -28,7 +28,7 @@ class DashboardService(implicit val executionContext: ExecutionContext) {
   def update(id: String, update: DashboardUpdate): Future[Option[Dashboard]] = Future {
     dashboards
       .find(_.id == id)
-      .map(_.copy(lastModifiedTime = Util.instant(), displayName = update.displayName, isPublic = update.isPublic,
+      .map(_.copy(lastModifiedTime = Util.now(), displayName = update.displayName, isPublic = update.isPublic,
         widgets = update.widgets.map(_.copy(id = Some(Util.generateId())))
       )).map { dashboard =>
       dashboards = dashboards.filterNot(_.id == id) :+ dashboard

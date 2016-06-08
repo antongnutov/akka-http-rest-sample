@@ -20,7 +20,6 @@ libraryDependencies ++= Seq(
 
     // Json
     "org.json4s" %% "json4s-jackson" % "3.3.0",
-    "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310" % "2.6.2",
     "de.heikoseeberger" %% "akka-http-json4s" % "1.7.0",
 
     // Logging
