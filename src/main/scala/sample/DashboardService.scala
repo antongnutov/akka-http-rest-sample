@@ -18,7 +18,7 @@ class DashboardService(implicit val executionContext: ExecutionContext) {
     val time = Util.now()
     val uri = ""
     val owner = Owner("1234567", "")
-    val widgets = update.widgets.map(_.copy(id = Some(Util.generateId())))
+    val widgets = update.widgets.map(w => addId(Util.generateId(), w))
 
     val dashboard = Dashboard(id, uri, update.displayName, update.isPublic, owner, time, time, widgets)
     dashboards :+= dashboard
@@ -29,7 +29,7 @@ class DashboardService(implicit val executionContext: ExecutionContext) {
     dashboards
       .find(_.id == id)
       .map(_.copy(lastModifiedTime = Util.now(), displayName = update.displayName, isPublic = update.isPublic,
-        widgets = update.widgets.map(_.copy(id = Some(Util.generateId())))
+        widgets = update.widgets.map(w => addId(Util.generateId(), w))
       )).map { dashboard =>
       dashboards = dashboards.filterNot(_.id == id) :+ dashboard
       dashboard
@@ -38,5 +38,10 @@ class DashboardService(implicit val executionContext: ExecutionContext) {
 
   def delete(id: String): Future[Unit] = Future {
     dashboards = dashboards.filterNot(_.id == id)
+  }
+
+  private def addId(newId: String, w: Widget): Widget = w match {
+    case s: SlaWidget => s.copy(id = Some(newId))
+    case q: QueueWidget => q.copy(id = Some(newId))
   }
 }
