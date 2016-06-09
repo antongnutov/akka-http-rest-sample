@@ -1,24 +1,29 @@
 package sample
 
+import akka.http.scaladsl.model.StatusCodes._
+import akka.http.scaladsl.server.{Directives, Route}
+
 /**
   * @author Anton Gnutov
   */
-trait DashboardResource extends Resource with JsonSupport {
+trait DashboardResource extends Directives with JsonSupport {
 
   val dashboardService: DashboardService
 
   private val restPath = pathPrefix("rest")
 
-  val route = restPath {
+  val route: Route = restPath {
     pathPrefix("dashboards") {
       pathEndOrSingleSlash {
         get {
-          complete(dashboardService.getAll)
+          onSuccess(dashboardService.getAll) {
+            case dashboards => complete(OK, dashboards)
+          }
         } ~
         post {
           entity(as[DashboardUpdate]) { update =>
             onSuccess(dashboardService.create(update)) {
-              case dashboard => complete(201, dashboard)
+              case dashboard => complete(Created, dashboard)
             }
           }
         }
@@ -26,18 +31,23 @@ trait DashboardResource extends Resource with JsonSupport {
       pathPrefix(Segment) { id =>
         pathEndOrSingleSlash {
           get {
-            complete(dashboardService.find(id))
+            onSuccess(dashboardService.find(id)) {
+              case Some(d) => complete(OK, d)
+              case None => complete(NotFound)
+            }
           } ~
           put {
             entity(as[DashboardUpdate]) { update =>
               onSuccess(dashboardService.update(id, update)) {
-                case Some(dashboard) => complete(dashboard)
-                case None => complete(400, None)
+                case Some(dashboard) => complete(OK, dashboard)
+                case None => complete(BadRequest)
               }
             }
           } ~
           delete {
-            complete(dashboardService.delete(id))
+            onSuccess(dashboardService.delete(id)) {
+              complete(NoContent)
+            }
           }
         }
       }
